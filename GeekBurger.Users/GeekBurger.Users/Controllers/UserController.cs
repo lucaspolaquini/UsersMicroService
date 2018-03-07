@@ -1,44 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using GeekBurger.Users.Contract;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GeekBurger.Users.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("users")]
     public class UserController : Controller
     {
-        // GET api/values
-        [HttpGet]
-        public IEnumerable<string> Get()
+        private int MaxImageSize = 4 * 1024 * 1024;//4MB
+
+        [HttpPost("")]
+        public IActionResult Post([FromBody]byte[] userFace)
         {
-            return new string[] { "value1", "value2" };
+            if(userFace.Length > MaxImageSize)
+            {
+                return BadRequest("Image too big");
+            }
+
+            return Ok();
         }
 
-        // GET api/values/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        [HttpPost("{user}/foodrestrictions")]
+        public IActionResult Post(FoodRestrictionsList restrictions)
         {
-            return "value";
-        }
-
-        // POST api/values
-        [HttpPost]
-        public void Post([FromBody]string value)
-        {
-        }
-
-        // PUT api/values/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
-        {
-        }
-
-        // DELETE api/values/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            return Ok();
         }
     }
 }
