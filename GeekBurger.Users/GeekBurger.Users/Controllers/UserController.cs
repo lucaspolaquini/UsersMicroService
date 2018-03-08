@@ -11,7 +11,7 @@ namespace GeekBurger.Users.Controllers
         [HttpPost("")]
         public IActionResult Post([FromBody]byte[] userFace)
         {
-            if(userFace.Length > MaxImageSize)
+            if (userFace.Length > MaxImageSize)
             {
                 return BadRequest("Image too big");
             }
@@ -22,7 +22,12 @@ namespace GeekBurger.Users.Controllers
         [HttpPost("{user}/foodrestrictions")]
         public IActionResult Post(FoodRestrictionsList restrictions)
         {
-            return Ok();
+            if (restrictions?.Others?.Length > 0 || restrictions?.Restrictions?.Length > 0)
+            {
+                return Ok();
+            }
+
+            return BadRequest("Submit at least one restriction");
         }
     }
 }
