@@ -7,7 +7,7 @@ namespace GeekBurger.Users.Controllers
     public class UserController : Controller
     {
         private int MaxImageSize = 4 * 1024 * 1024;//4MB
-
+        
         [HttpPost("")]
         public IActionResult Post([FromBody]byte[] userFace)
         {
