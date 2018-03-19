@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using GeekBurger.Users.Controllers;
 using GeekBurger.Users.Model;
+using GeekBurger.Users.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -19,7 +20,7 @@ namespace GeekBurger.Users.UnitTest
         [TestInitialize]
         public void Iniciar()
         {
-            controller = new UserController(Mock.Of<IDetector>());
+            controller = new UserController(Mock.Of<IDetector>(), Mock.Of<IRestrictionsRepository>());
         }
 
         [TestMethod]
