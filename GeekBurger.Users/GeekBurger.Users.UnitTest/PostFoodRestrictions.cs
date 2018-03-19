@@ -1,18 +1,27 @@
 ﻿using FluentAssertions;
 using GeekBurger.Users.Contract;
 using GeekBurger.Users.Controllers;
+using GeekBurger.Users.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
 namespace GeekBurger.Users.UnitTest
 {
     [TestClass]
     public class PostFoodRestrictions
     {
+        UserController controller;
+        
+        [TestInitialize]
+        public void Iniciar()
+        {
+             controller = new UserController(Mock.Of<IDetector>());
+        }
+
         [TestMethod]
         public void VerifyOkReturn()
         {
-            UserController controller = new UserController();
             FoodRestrictionsList foodRestrictionsList = new FoodRestrictionsList
             {
                 Restrictions = new string[1]
@@ -27,7 +36,6 @@ namespace GeekBurger.Users.UnitTest
         [TestMethod]
         public void VerifyNullBadRequest()
         {
-            UserController controller = new UserController();
             FoodRestrictionsList foodRestrictionsList = null;
 
             var result = controller.Post(foodRestrictionsList);
@@ -38,7 +46,6 @@ namespace GeekBurger.Users.UnitTest
         [TestMethod]
         public void VerifyNullListBadRequest()
         {
-            UserController controller = new UserController();
             FoodRestrictionsList foodRestrictionsList = new FoodRestrictionsList();
 
             var result = controller.Post(foodRestrictionsList);
@@ -49,7 +56,6 @@ namespace GeekBurger.Users.UnitTest
         [TestMethod]
         public void VerifyEmptyListBadRequest()
         {
-            UserController controller = new UserController();
             FoodRestrictionsList foodRestrictionsList = new FoodRestrictionsList
             {
                 Others = new string[0],

@@ -1,20 +1,36 @@
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using GeekBurger.Users.Controllers;
+using GeekBurger.Users.Model;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
 namespace GeekBurger.Users.UnitTest
 {
     [TestClass]
     public class PostUser
     {
+        UserController controller;
+
+        [TestInitialize]
+        public void Iniciar()
+        {
+            controller = new UserController(Mock.Of<IDetector>());
+        }
+
         [TestMethod]
         public void VerifyOkReturn()
         {
-            UserController controller = new UserController();
-            var parameter = new byte[0];
+            var parameterMock = new Mock<IFormFile>();
+            parameterMock.Setup(p => p.Length).Returns(0);
+            parameterMock.Setup(p => p.FileName).Returns("fototeste.jpg");
+            parameterMock.Setup(p => p.OpenReadStream()).Returns(new MemoryStream());
 
-            var result = controller.Post(parameter);
+            var result = controller.Post(parameterMock.Object);
 
             result.Should().BeOfType<OkResult>();
         }
@@ -22,10 +38,11 @@ namespace GeekBurger.Users.UnitTest
         [TestMethod]
         public void VerifyBadRequest()
         {
-            UserController controller = new UserController();
-            var parameter = new byte[4*1024*1024 + 1];
+            var parameterMock = new Mock<IFormFile>();
+            parameterMock.Setup(p => p.Length).Returns(4 * 1024 * 1024 + 1);
+            parameterMock.Setup(p => p.FileName).Returns("fototeste.jpg");
 
-            var result = controller.Post(parameter);
+            var result = controller.Post(parameterMock.Object);
 
             result.Should().BeOfType<BadRequestObjectResult>();
         }
