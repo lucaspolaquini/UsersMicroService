@@ -2,9 +2,11 @@
 using GeekBurger.Users.Contract;
 using GeekBurger.Users.Controllers;
 using GeekBurger.Users.Model;
+using GeekBurger.Users.Repository;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System;
 
 namespace GeekBurger.Users.UnitTest
 {
@@ -12,11 +14,11 @@ namespace GeekBurger.Users.UnitTest
     public class PostFoodRestrictions
     {
         UserController controller;
-        
+
         [TestInitialize]
         public void Iniciar()
         {
-             controller = new UserController(Mock.Of<IDetector>());
+            controller = new UserController(Mock.Of<IDetector>(), Mock.Of<IRestrictionsRepository>());
         }
 
         [TestMethod]
@@ -28,7 +30,7 @@ namespace GeekBurger.Users.UnitTest
             };
             foodRestrictionsList.Restrictions[0] = "Lactose";
 
-            var result = controller.Post(foodRestrictionsList);
+            var result = controller.Post(Guid.NewGuid(), foodRestrictionsList);
 
             result.Should().BeOfType<OkResult>();
         }
@@ -38,7 +40,7 @@ namespace GeekBurger.Users.UnitTest
         {
             FoodRestrictionsList foodRestrictionsList = null;
 
-            var result = controller.Post(foodRestrictionsList);
+            var result = controller.Post(Guid.NewGuid(), foodRestrictionsList);
 
             result.Should().BeOfType<BadRequestObjectResult>();
         }
@@ -48,7 +50,7 @@ namespace GeekBurger.Users.UnitTest
         {
             FoodRestrictionsList foodRestrictionsList = new FoodRestrictionsList();
 
-            var result = controller.Post(foodRestrictionsList);
+            var result = controller.Post(Guid.NewGuid(), foodRestrictionsList);
 
             result.Should().BeOfType<BadRequestObjectResult>();
         }
@@ -62,7 +64,7 @@ namespace GeekBurger.Users.UnitTest
                 Restrictions = new string[0]
             };
 
-            var result = controller.Post(foodRestrictionsList);
+            var result = controller.Post(Guid.NewGuid(), foodRestrictionsList);
 
             result.Should().BeOfType<BadRequestObjectResult>();
         }

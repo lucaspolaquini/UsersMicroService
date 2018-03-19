@@ -1,7 +1,10 @@
 ﻿using GeekBurger.Users.Contract;
 using GeekBurger.Users.Model;
+using GeekBurger.Users.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -14,17 +17,18 @@ namespace GeekBurger.Users.Controllers
         private static readonly Regex fileTypeRegex = new Regex(@"\.(jpg|png|jpeg|bmp)");
 
         private IDetector Detector { get; }
+        private IRestrictionsRepository RestrictionsRepository { get; }
 
-        public UserController(IDetector detector)
+        public UserController(IDetector detector, IRestrictionsRepository restrictionsRepository)
         {
             this.Detector = detector;
+            this.RestrictionsRepository = restrictionsRepository;
         }
-
 
         [HttpPost("")]
         public IActionResult Post(IFormFile facePicture)
         {
-            if(facePicture == null)
+            if (facePicture == null)
             {
                 return BadRequest("Please send a image file with name facePicture");
             }
@@ -48,10 +52,23 @@ namespace GeekBurger.Users.Controllers
         }
 
         [HttpPost("{user}/foodrestrictions")]
-        public IActionResult Post(FoodRestrictionsList restrictions)
+        public IActionResult Post(Guid user, [FromBody] FoodRestrictionsList restrictions)
         {
             if (restrictions?.Others?.Length > 0 || restrictions?.Restrictions?.Length > 0)
             {
+                //TODO: Verificar se restrição já existe
+                List<string> restrictionsList = new List<string>();
+
+                if (restrictions?.Others?.Length > 0)
+                    foreach (string item in restrictions?.Others)
+                        RestrictionsRepository.Add(new Restriction() { UserId = user, Name = item, Other = true });
+
+                if (restrictions?.Restrictions?.Length > 0)
+                    foreach (string item in restrictions?.Restrictions)
+                        RestrictionsRepository.Add(new Restriction() { UserId = user, Name = item, Other = false });
+
+                RestrictionsRepository.Save();
+
                 return Ok();
             }
 
