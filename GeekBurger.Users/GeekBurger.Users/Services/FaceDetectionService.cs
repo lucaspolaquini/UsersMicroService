@@ -10,17 +10,17 @@ namespace GeekBurger.Users.Services
 {
     public class FaceDetectionService : IFaceDetection
     {
-        public static FaceServiceClient faceServiceClient;
+        public static FaceServiceClient FaceServiceClient;
         public static IConfiguration Configuration;
-        public static Guid FaceListId;
+        public static string FaceListId;
 
         public FaceDetectionService(IConfiguration configuration)
         {
             Configuration = configuration;
 
-            FaceListId = Guid.Parse(Configuration["FaceListId"]);
+            FaceListId = Configuration.GetSection("faceApi")["FaceListId"];
 
-            faceServiceClient = new FaceServiceClient(Configuration["FaceAPIKey"], "https://westcentralus.api.cognitive.microsoft.com/face/v1.0/");
+            FaceServiceClient = new FaceServiceClient(Configuration.GetSection("faceApi")["FaceAPIKey"], "https://westcentralus.api.cognitive.microsoft.com/face/v1.0/");
 
             UpsertFaceListAndCheckIfContainsFace();
         }
@@ -29,7 +29,7 @@ namespace GeekBurger.Users.Services
         {
             try
             {
-                var faces = await faceServiceClient.DetectAsync(picture);
+                var faces = await FaceServiceClient.DetectAsync(picture);
                 var faceReturned = faces.FirstOrDefault();
 
                 if (faceReturned != null)
@@ -53,7 +53,7 @@ namespace GeekBurger.Users.Services
 
         public async Task<(Guid userId, double Confidence)?> FindSimilars(FacePicture face)
         {
-            var similarFaces = await faceServiceClient.FindSimilarAsync(face.FaceId, FaceListId.ToString(), 5);
+            var similarFaces = await FaceServiceClient.FindSimilarAsync(face.FaceId, FaceListId.ToString(), 5);
 
             var similarFace = similarFaces.FirstOrDefault();
 
@@ -64,7 +64,7 @@ namespace GeekBurger.Users.Services
         {
             try
             {
-                await faceServiceClient.AddFaceToFaceListAsync(FaceListId.ToString(), face.ImageStream);
+                await FaceServiceClient.AddFaceToFaceListAsync(FaceListId.ToString(), face.ImageStream);
             }
             catch (Exception)
             {
@@ -74,13 +74,12 @@ namespace GeekBurger.Users.Services
 
         private void UpsertFaceListAndCheckIfContainsFace()
         {
-            var faceListId = FaceListId.ToString();
-            var faceLists = faceServiceClient.ListFaceListsAsync().Result;
-            var faceList = faceLists.FirstOrDefault(_ => _.FaceListId == FaceListId.ToString());
+            var faceLists = FaceServiceClient.ListFaceListsAsync().Result;
+            var faceList = faceLists.FirstOrDefault(_ => _.FaceListId == FaceListId);
 
             if (faceList == null)
             {
-                faceServiceClient.CreateFaceListAsync(faceListId, "GeekBurgerFaces", null);
+                FaceServiceClient.CreateFaceListAsync(FaceListId, "GeekBurgerFaces", null).Wait();
             }
         }
     }
