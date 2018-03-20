@@ -55,7 +55,7 @@ namespace GeekBurger.Users.Services
         {
             var similarFaces = await faceServiceClient.FindSimilarAsync(face.FaceId, FaceListId.ToString(), 5);
 
-            var similarFace = similarFaces.FirstOrDefault(_ => _.Confidence > 0.5);
+            var similarFace = similarFaces.FirstOrDefault();
 
             return (similarFace.PersistedFaceId, similarFace.Confidence);
         }

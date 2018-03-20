@@ -29,13 +29,13 @@ namespace GeekBurger.Users
                 c.SwaggerDoc("v1", new Info { Title = "Users", Version = "v1" });
             });
 
-            services.AddSingleton<IFaceDetection>((_) => new FaceDetectionService());
             services.AddSingleton<IServiceBus>((_) => new ServiceBusService());
             services.AddSingleton<IDetector>((sp) => new Detector(sp.GetService<IFaceDetection>(), sp.GetService<IServiceBus>()));
 
             services.AddDbContext<RestrictionsContext>(o => o.UseInMemoryDatabase("geekburger-users-restrictions"));
             services.AddScoped<IRestrictionsRepository, RestrictionsRepository>();
             services.AddSingleton<IRestrictionChangedService, RestrictionChangedService>();
+            services.AddSingleton<IFaceDetection, FaceDetectionService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
