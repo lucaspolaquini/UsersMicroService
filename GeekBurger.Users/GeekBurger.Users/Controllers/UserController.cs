@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -26,24 +27,22 @@ namespace GeekBurger.Users.Controllers
         }
 
         [HttpPost("")]
-        public IActionResult Post(IFormFile facePicture)
+        public IActionResult Post()
         {
-            if (facePicture == null)
+            if (Request?.ContentLength == 0)
             {
                 return BadRequest("Please send a image file with name facePicture");
             }
 
-            if (!fileTypeRegex.IsMatch(facePicture.FileName))
-            {
-                return BadRequest("File type not supported");
-            }
-
-            if (facePicture.Length > MaxImageSize)
+            if (Request?.ContentLength > MaxImageSize)
             {
                 return BadRequest("Image too big");
             }
-
-            var faceStream = facePicture.OpenReadStream();
+            
+            var faceStream = new MemoryStream();
+            Request.Body.CopyTo(faceStream);
+            faceStream.Seek(0, SeekOrigin.Begin);
+            //var faceStream = facePicture.OpenReadStream();
 
             //DO NOT await - make it an async call
             Detector.DetectAsync(faceStream);
@@ -52,7 +51,7 @@ namespace GeekBurger.Users.Controllers
         }
 
         [HttpPost("{user}/foodrestrictions")]
-        public IActionResult Post(Guid user, [FromBody] FoodRestrictionsList restrictions)
+        public IActionResult Post(Guid user, FoodRestrictionsList restrictions)
         {
             if (restrictions?.Others?.Length > 0 || restrictions?.Restrictions?.Length > 0)
             {

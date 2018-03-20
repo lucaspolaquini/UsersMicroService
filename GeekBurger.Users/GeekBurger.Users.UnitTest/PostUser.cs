@@ -31,7 +31,7 @@ namespace GeekBurger.Users.UnitTest
             parameterMock.Setup(p => p.FileName).Returns("fototeste.jpg");
             parameterMock.Setup(p => p.OpenReadStream()).Returns(new MemoryStream());
 
-            var result = controller.Post(parameterMock.Object);
+            var result = controller.Post(new byte[0]);
 
             result.Should().BeOfType<OkResult>();
         }
@@ -39,11 +39,9 @@ namespace GeekBurger.Users.UnitTest
         [TestMethod]
         public void VerifyBadRequest()
         {
-            var parameterMock = new Mock<IFormFile>();
-            parameterMock.Setup(p => p.Length).Returns(4 * 1024 * 1024 + 1);
-            parameterMock.Setup(p => p.FileName).Returns("fototeste.jpg");
+            int maxSizePlusOne = 4 * 1024 * 1024 + 1;
 
-            var result = controller.Post(parameterMock.Object);
+            var result = controller.Post(new byte[maxSizePlusOne]);
 
             result.Should().BeOfType<BadRequestObjectResult>();
         }

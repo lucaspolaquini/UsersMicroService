@@ -34,7 +34,7 @@ namespace GeekBurger.Users.Model
                         UserRetrievedMessage message = new UserRetrievedMessage();
                         message.UserId = userID;
                         message.AreRestrictionsSet = false;
-                        await bus.PostMessage(UserRetrievedMessage.DefaultTopic, message.Serialize());
+                        await bus.PostMessage(UserRetrievedMessage.DefaultTopic, message);
                     }
                     else
                     {
@@ -42,7 +42,7 @@ namespace GeekBurger.Users.Model
                         message.UserId = result.userId;
                         message.AreRestrictionsSet = true;
                         //TODO: Get restrictions
-                        await bus.PostMessage(UserRetrievedMessage.DefaultTopic, message.Serialize());
+                        await bus.PostMessage(UserRetrievedMessage.DefaultTopic, message);
                     }
 
                 }

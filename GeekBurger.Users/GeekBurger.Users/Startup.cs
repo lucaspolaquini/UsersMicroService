@@ -7,6 +7,7 @@ using GeekBurger.Users.Model;
 using Swashbuckle.AspNetCore.Swagger;
 using Microsoft.EntityFrameworkCore;
 using GeekBurger.Users.Repository;
+using System.IO;
 
 namespace GeekBurger.Users
 {
@@ -14,7 +15,7 @@ namespace GeekBurger.Users
     {
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            this.Configuration = configuration;
         }
 
         public IConfiguration Configuration { get; }
@@ -24,14 +25,23 @@ namespace GeekBurger.Users
         {
             var mvcCoreBuilder = services.AddMvc();
 
+            var builder = services.AddMvcCore()
+                    .AddFormatterMappings()
+                    .AddJsonFormatters()
+                    .AddCors(options =>
+                    options.AddPolicy("Default", p => p.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin() ) );
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Info { Title = "Users", Version = "v1" });
             });
 
-            services.AddSingleton<IFaceDetection>((_) => new FaceDetectionService());
-            services.AddSingleton<IServiceBus>((_) => new ServiceBusService());
-            services.AddSingleton<IDetector>((sp) => new Detector(sp.GetService<IFaceDetection>(), sp.GetService<IServiceBus>()));
+            services.AddSingleton<IConfiguration>(Configuration);
+
+            services.AddSingleton<IFaceDetection, FaceDetectionService>();
+            services.AddSingleton<IServiceBus, ServiceBusService>();
+            services.AddSingleton<IDetector, Detector>();
+            
 
             services.AddDbContext<RestrictionsContext>(o => o.UseInMemoryDatabase("geekburger-users-restrictions"));
             services.AddScoped<IRestrictionsRepository, RestrictionsRepository>();

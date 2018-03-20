@@ -11,12 +11,10 @@ namespace GeekBurger.Users.Repository
     public class RestrictionsRepository : IRestrictionsRepository
     {
         private RestrictionsContext _context;
-        private IRestrictionChangedService _restrictionChangedService;
 
-        public RestrictionsRepository(RestrictionsContext context, IRestrictionChangedService restrictionChangedService)
+        public RestrictionsRepository(RestrictionsContext context)
         {
             _context = context;
-            _restrictionChangedService = restrictionChangedService;
         }
 
         public bool Add(Restriction restriction)
@@ -34,9 +32,7 @@ namespace GeekBurger.Users.Repository
 
         public void Save()
         {
-            _restrictionChangedService.AddToMessageList(_context.ChangeTracker.Entries<Restriction>());
             _context.SaveChanges();
-            _restrictionChangedService.SendMessagesAsync();
         }
     }
 }

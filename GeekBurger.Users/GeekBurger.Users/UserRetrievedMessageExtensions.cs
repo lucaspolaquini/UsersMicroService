@@ -9,9 +9,10 @@ namespace GeekBurger.Users
 {
     public static class UserRetrievedMessageExtensions
     {
-        public static string Serialize(this UserRetrievedMessage message)
+        public static byte[] Serialize(this UserRetrievedMessage message)
         {
-            return JToken.FromObject(message).ToString();
+            string inJson = JToken.FromObject(message).ToString();
+            return System.Text.Encoding.UTF8.GetBytes(inJson);
         }
     }
 }
