@@ -9,10 +9,10 @@ namespace GeekBurger.Users.Services
 {
     interface IFaceDetection
     {
-        Task<Face> Detect(Stream picture);
+        Task<FacePicture> Detect(Stream picture);
 
-        Task<(Guid userId, double Confidence)> FindSimilars(Face face);
+        Task<(Guid userId, double Confidence)?> FindSimilars(FacePicture face);
 
-        Task Save(Guid userID, Face face);
+        Task Save(Guid userID, FacePicture face);
     }
 }

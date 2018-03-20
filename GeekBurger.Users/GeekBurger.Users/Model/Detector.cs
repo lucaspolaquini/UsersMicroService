@@ -26,21 +26,25 @@ namespace GeekBurger.Users.Model
                 {
                     var result = await faceDetector.FindSimilars(face);
 
-                    if (result.Confidence <= 0.5)
+                    if (result?.Confidence <= 0.5)
                     {
                         Guid userID = Guid.NewGuid();
                         await faceDetector.Save(userID, face);
 
-                        UserRetrievedMessage message = new UserRetrievedMessage();
-                        message.UserId = userID;
-                        message.AreRestrictionsSet = false;
+                        UserRetrievedMessage message = new UserRetrievedMessage
+                        {
+                            UserId = userID,
+                            AreRestrictionsSet = false
+                        };
                         await bus.PostMessage(UserRetrievedMessage.DefaultTopic, message.Serialize());
                     }
                     else
                     {
-                        UserRetrievedMessage message = new UserRetrievedMessage();
-                        message.UserId = result.userId;
-                        message.AreRestrictionsSet = true;
+                        UserRetrievedMessage message = new UserRetrievedMessage
+                        {
+                            UserId = (Guid)result?.userId,
+                            AreRestrictionsSet = true
+                        };
                         //TODO: Get restrictions
                         await bus.PostMessage(UserRetrievedMessage.DefaultTopic, message.Serialize());
                     }
