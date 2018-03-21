@@ -31,12 +31,11 @@ namespace GeekBurger.Users.Model
                         Guid userID = Guid.NewGuid();
                         await faceDetector.Save(userID, face);
 
-                        UserRetrievedMessage message = new UserRetrievedMessage
-                        {
-                            UserId = userID,
-                            AreRestrictionsSet = false
-                        };
-                        await bus.PostMessage(UserRetrievedMessage.DefaultTopic, message.Serialize());
+                        UserRetrievedMessage message = new UserRetrievedMessage();
+                        message.UserId = userID;
+                        message.AreRestrictionsSet = false;
+                        await bus.PostMessage(UserRetrievedMessage.DefaultTopic, message);
+
                     }
                     else
                     {
@@ -46,7 +45,7 @@ namespace GeekBurger.Users.Model
                             AreRestrictionsSet = true
                         };
                         //TODO: Get restrictions
-                        await bus.PostMessage(UserRetrievedMessage.DefaultTopic, message.Serialize());
+                        await bus.PostMessage(UserRetrievedMessage.DefaultTopic, message);
                     }
 
                 }

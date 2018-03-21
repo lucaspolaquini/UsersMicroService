@@ -1,10 +1,12 @@
-﻿using GeekBurger.Users.Contract;
+﻿using GeekBurger.Users.Binder;
+using GeekBurger.Users.Contract;
 using GeekBurger.Users.Model;
 using GeekBurger.Users.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -13,9 +15,6 @@ namespace GeekBurger.Users.Controllers
     [Route("users")]
     public class UserController : Controller
     {
-        private static readonly int MaxImageSize = 4 * 1024 * 1024;//4MB
-        private static readonly Regex fileTypeRegex = new Regex(@"\.(jpg|png|jpeg|bmp)");
-
         private IDetector Detector { get; }
         private IRestrictionsRepository RestrictionsRepository { get; }
 
@@ -26,24 +25,9 @@ namespace GeekBurger.Users.Controllers
         }
 
         [HttpPost("")]
-        public IActionResult Post(IFormFile facePicture)
+        public IActionResult Post([ModelBinder(typeof(ByteArrayModelBinder))]byte[] picture)
         {
-            if (facePicture == null)
-            {
-                return BadRequest("Please send a image file with name facePicture");
-            }
-
-            if (!fileTypeRegex.IsMatch(facePicture.FileName))
-            {
-                return BadRequest("File type not supported");
-            }
-
-            if (facePicture.Length > MaxImageSize)
-            {
-                return BadRequest("Image too big");
-            }
-
-            var faceStream = facePicture.OpenReadStream();
+            var faceStream = new MemoryStream(picture);
 
             //DO NOT await - make it an async call
             Detector.DetectAsync(faceStream);
@@ -52,7 +36,7 @@ namespace GeekBurger.Users.Controllers
         }
 
         [HttpPost("{user}/foodrestrictions")]
-        public IActionResult Post(Guid user, [FromBody] FoodRestrictionsList restrictions)
+        public IActionResult Post(Guid user, FoodRestrictionsList restrictions)
         {
             if (restrictions?.Others?.Length > 0 || restrictions?.Restrictions?.Length > 0)
             {

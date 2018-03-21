@@ -7,6 +7,7 @@ using GeekBurger.Users.Model;
 using Swashbuckle.AspNetCore.Swagger;
 using Microsoft.EntityFrameworkCore;
 using GeekBurger.Users.Repository;
+using System.IO;
 
 namespace GeekBurger.Users
 {
@@ -14,7 +15,7 @@ namespace GeekBurger.Users
     {
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            this.Configuration = configuration;
         }
 
         public IConfiguration Configuration { get; }
@@ -23,19 +24,27 @@ namespace GeekBurger.Users
         public void ConfigureServices(IServiceCollection services)
         {
             var mvcCoreBuilder = services.AddMvc();
+            
 
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Info { Title = "Users", Version = "v1" });
             });
 
-            services.AddSingleton<IServiceBus>((_) => new ServiceBusService());
-            services.AddSingleton<IDetector>((sp) => new Detector(sp.GetService<IFaceDetection>(), sp.GetService<IServiceBus>()));
+            services.AddSingleton(Configuration);
+
+            services.AddSingleton<IPictureValidator, PictureValidator>();
+
+            services.AddSingleton<IFaceDetection, FaceDetectionService>();
+            services.AddSingleton<IServiceBus, ServiceBusService>();
+            services.AddSingleton<IDetector, Detector>();
+            
 
             services.AddDbContext<RestrictionsContext>(o => o.UseInMemoryDatabase("geekburger-users-restrictions"));
             services.AddScoped<IRestrictionsRepository, RestrictionsRepository>();
-            services.AddSingleton<IRestrictionChangedService, RestrictionChangedService>();
+
             services.AddSingleton<IFaceDetection, FaceDetectionService>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -45,6 +54,13 @@ namespace GeekBurger.Users
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            //app.Run(async (context) =>
+            //{
+            //    var ms = new MemoryStream();
+            //    await context.Request.Body.CopyToAsync(ms);
+            //    context.Request.Body = ms;
+            //});
 
             app.UseMvc();
 
