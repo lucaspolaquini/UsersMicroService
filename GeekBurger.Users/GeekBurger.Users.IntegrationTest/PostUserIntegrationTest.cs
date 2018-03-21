@@ -45,17 +45,9 @@ namespace GeekBurger.Users.IntegrationTest
             {
                 BaseAddress = new Uri("http://localhost:5000")
             };
-
-            var formContent = new MultipartFormDataContent();
-            //HttpContent content = new StreamContent(st);
+            
             HttpContent content = new ByteArrayContent(faceBytes);
-            content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-
-
-            //formContent.Add(content, "facePicture");
-
-
-            //var result = client.PostAsync("users",formContent).Result;
+            
             var result = client.PostAsync("users", content).Result;
 
             Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);

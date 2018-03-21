@@ -24,19 +24,16 @@ namespace GeekBurger.Users
         public void ConfigureServices(IServiceCollection services)
         {
             var mvcCoreBuilder = services.AddMvc();
-
-            var builder = services.AddMvcCore()
-                    .AddFormatterMappings()
-                    .AddJsonFormatters()
-                    .AddCors(options =>
-                    options.AddPolicy("Default", p => p.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin() ) );
+            
 
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Info { Title = "Users", Version = "v1" });
             });
 
-            services.AddSingleton<IConfiguration>(Configuration);
+            services.AddSingleton(Configuration);
+
+            services.AddSingleton<IPictureValidator, PictureValidator>();
 
             services.AddSingleton<IFaceDetection, FaceDetectionService>();
             services.AddSingleton<IServiceBus, ServiceBusService>();
@@ -45,7 +42,6 @@ namespace GeekBurger.Users
 
             services.AddDbContext<RestrictionsContext>(o => o.UseInMemoryDatabase("geekburger-users-restrictions"));
             services.AddScoped<IRestrictionsRepository, RestrictionsRepository>();
-            services.AddSingleton<IRestrictionChangedService, RestrictionChangedService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -55,6 +51,13 @@ namespace GeekBurger.Users
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            //app.Run(async (context) =>
+            //{
+            //    var ms = new MemoryStream();
+            //    await context.Request.Body.CopyToAsync(ms);
+            //    context.Request.Body = ms;
+            //});
 
             app.UseMvc();
 

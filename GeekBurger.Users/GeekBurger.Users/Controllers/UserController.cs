@@ -1,4 +1,5 @@
-﻿using GeekBurger.Users.Contract;
+﻿using GeekBurger.Users.Binder;
+using GeekBurger.Users.Contract;
 using GeekBurger.Users.Model;
 using GeekBurger.Users.Repository;
 using Microsoft.AspNetCore.Http;
@@ -14,9 +15,6 @@ namespace GeekBurger.Users.Controllers
     [Route("users")]
     public class UserController : Controller
     {
-        private static readonly int MaxImageSize = 4 * 1024 * 1024;//4MB
-        private static readonly Regex fileTypeRegex = new Regex(@"\.(jpg|png|jpeg|bmp)");
-
         private IDetector Detector { get; }
         private IRestrictionsRepository RestrictionsRepository { get; }
 
@@ -27,22 +25,9 @@ namespace GeekBurger.Users.Controllers
         }
 
         [HttpPost("")]
-        public IActionResult Post()
+        public IActionResult Post([ModelBinder(typeof(ByteArrayModelBinder))]byte[] picture)
         {
-            if (Request?.ContentLength == 0)
-            {
-                return BadRequest("Please send a image file with name facePicture");
-            }
-
-            if (Request?.ContentLength > MaxImageSize)
-            {
-                return BadRequest("Image too big");
-            }
-            
-            var faceStream = new MemoryStream();
-            Request.Body.CopyTo(faceStream);
-            faceStream.Seek(0, SeekOrigin.Begin);
-            //var faceStream = facePicture.OpenReadStream();
+            var faceStream = new MemoryStream(picture);
 
             //DO NOT await - make it an async call
             Detector.DetectAsync(faceStream);
