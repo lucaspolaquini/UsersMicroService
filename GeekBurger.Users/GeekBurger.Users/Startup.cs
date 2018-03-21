@@ -42,6 +42,9 @@ namespace GeekBurger.Users
 
             services.AddDbContext<RestrictionsContext>(o => o.UseInMemoryDatabase("geekburger-users-restrictions"));
             services.AddScoped<IRestrictionsRepository, RestrictionsRepository>();
+
+            services.AddSingleton<IFaceDetection, FaceDetectionService>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
