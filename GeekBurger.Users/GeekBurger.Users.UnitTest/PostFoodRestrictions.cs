@@ -3,6 +3,7 @@ using GeekBurger.Users.Contract;
 using GeekBurger.Users.Controllers;
 using GeekBurger.Users.Model;
 using GeekBurger.Users.Repository;
+using GeekBurger.Users.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -18,7 +19,7 @@ namespace GeekBurger.Users.UnitTest
         [TestInitialize]
         public void Iniciar()
         {
-            controller = new UserController(Mock.Of<IDetector>(), Mock.Of<IRestrictionsRepository>());
+            controller = new UserController(Mock.Of<IDetector>(), Mock.Of<IRestrictionsRepository>(), Mock.Of<IServiceBus>());
         }
 
         [TestMethod]
@@ -30,7 +31,7 @@ namespace GeekBurger.Users.UnitTest
             };
             foodRestrictionsList.Restrictions[0] = "Lactose";
 
-            var result = controller.Post(Guid.NewGuid(), foodRestrictionsList);
+            var result = controller.Post(Guid.NewGuid(), foodRestrictionsList).Result;
 
             result.Should().BeOfType<OkResult>();
         }
@@ -40,7 +41,7 @@ namespace GeekBurger.Users.UnitTest
         {
             FoodRestrictionsList foodRestrictionsList = null;
 
-            var result = controller.Post(Guid.NewGuid(), foodRestrictionsList);
+            var result = controller.Post(Guid.NewGuid(), foodRestrictionsList).Result;
 
             result.Should().BeOfType<BadRequestObjectResult>();
         }
@@ -50,7 +51,7 @@ namespace GeekBurger.Users.UnitTest
         {
             FoodRestrictionsList foodRestrictionsList = new FoodRestrictionsList();
 
-            var result = controller.Post(Guid.NewGuid(), foodRestrictionsList);
+            var result = controller.Post(Guid.NewGuid(), foodRestrictionsList).Result;
 
             result.Should().BeOfType<BadRequestObjectResult>();
         }
@@ -64,7 +65,7 @@ namespace GeekBurger.Users.UnitTest
                 Restrictions = new string[0]
             };
 
-            var result = controller.Post(Guid.NewGuid(), foodRestrictionsList);
+            var result = controller.Post(Guid.NewGuid(), foodRestrictionsList).Result;
 
             result.Should().BeOfType<BadRequestObjectResult>();
         }

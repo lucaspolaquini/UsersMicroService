@@ -37,7 +37,7 @@ namespace GeekBurger.Users.Services
             
             var byteArray = message.Serialize();
 
-            var topicClient = new TopicClient(configuration["ConnectionString"], topic);
+            var topicClient = new TopicClient(configuration.GetSection("serviceBus")["connectionString"], topic);
 
             Message oMessage = new Message
             {

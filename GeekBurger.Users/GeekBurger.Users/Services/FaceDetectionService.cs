@@ -53,20 +53,28 @@ namespace GeekBurger.Users.Services
 
         public async Task<(Guid userId, double Confidence)?> FindSimilars(FacePicture face)
         {
-            var similarFaces = await FaceServiceClient.FindSimilarAsync(face.FaceId, FaceListId.ToString(), 5);
+            try
+            {
+                var similarFaces = await FaceServiceClient.FindSimilarAsync(face.FaceId, FaceListId.ToString(), 5);
 
-            var similarFace = similarFaces.FirstOrDefault();
+                var similarFace = similarFaces.FirstOrDefault();
 
-            return (similarFace.PersistedFaceId, similarFace.Confidence);
+                return (similarFace.PersistedFaceId, similarFace.Confidence);
+            }
+            catch (Exception ex)
+            {
+                return (face.FaceId, 0);
+            }
         }
 
         public async Task Save(Guid userID, FacePicture face)
         {
             try
             {
+                face.ImageStream.Seek(0, SeekOrigin.Begin);
                 await FaceServiceClient.AddFaceToFaceListAsync(FaceListId.ToString(), face.ImageStream);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 Console.WriteLine("Face not included in Face List!");
             }

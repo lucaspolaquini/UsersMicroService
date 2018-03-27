@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GeekBurger.Users.Services
 {
-    interface IServiceBus
+    public interface IServiceBus
     {
         Task PostMessage(string topic, UserRetrievedMessage message);
     }

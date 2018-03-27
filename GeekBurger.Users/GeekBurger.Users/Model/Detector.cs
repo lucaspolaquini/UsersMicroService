@@ -1,18 +1,22 @@
 ﻿using GeekBurger.Users.Contract;
+using GeekBurger.Users.Repository;
 using GeekBurger.Users.Services;
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace GeekBurger.Users.Model
 {
     class Detector : IDetector
     {
+        private readonly IRestrictionsRepository restrictionsRepository;
         private readonly IFaceDetection faceDetector;
         private readonly IServiceBus bus;
 
-        public Detector(IFaceDetection faceDetector, IServiceBus bus)
+        public Detector(IFaceDetection faceDetector, IServiceBus bus, IRestrictionsRepository restrictionsRepository)
         {
+            this.restrictionsRepository = restrictionsRepository;
             this.faceDetector = faceDetector;
             this.bus = bus;
         }
@@ -39,21 +43,27 @@ namespace GeekBurger.Users.Model
                     }
                     else
                     {
+                        var userId = (Guid)result?.userId;
                         UserRetrievedMessage message = new UserRetrievedMessage
                         {
-                            UserId = (Guid)result?.userId,
-                            AreRestrictionsSet = true
+                            UserId = userId,
+                            AreRestrictionsSet = true,
+                            Restrictions = new FoodRestrictionsList()
                         };
-                        //TODO: Get restrictions
+                        
+                        var restrictions = restrictionsRepository.GetFoodRestrictionsByUser(userId);
+
+                        message.Restrictions.Others = restrictions.Where(r => r.Other).Select(r => r.Name).ToArray();
+                        message.Restrictions.Restrictions = restrictions.Where(r => !r.Other).Select(r => r.Name).ToArray();
+
                         await bus.PostMessage(UserRetrievedMessage.DefaultTopic, message);
                     }
-
                 }
             }
             catch (Exception ex)
             {
                 //TODO: Logging
             }
-        }
+}
     }
 }
