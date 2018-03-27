@@ -1,8 +1,8 @@
 # UsersMicroService
 
-Microserviço de Usuários com reconhecimento facial para a aplicação GeekBurger
-O serviço pode ser encontrado na url: http://geekburgerusers.azurewebservices.net/
-Os métodos disponíveis estão em http://geekburgerusers.azurewebservices.net/swagger/v1/swagger.json
+- Microserviço de Usuários com reconhecimento facial para a aplicação GeekBurger
+- O serviço pode ser encontrado na url: http://geekburgerusers.azurewebservices.net/
+- Os métodos disponíveis estão em http://geekburgerusers.azurewebservices.net/swagger/v1/swagger.json
 
 ## Decisões
 
